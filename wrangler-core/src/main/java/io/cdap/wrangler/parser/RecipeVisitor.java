@@ -38,6 +38,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import io.cdap.wrangler.api.parser.ByteSize;
+import io.cdap.wrangler.api.parser.TimeDuration;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -326,4 +329,19 @@ public final class RecipeVisitor extends DirectivesBaseVisitor<RecipeSymbol.Buil
     int column = ctx.getStart().getCharPositionInLine();
     return new SourceInfo(lineno, column, text);
   }
+
+  @Override
+public RecipeSymbol.Builder visitBytesize(DirectivesParser.BytesizeContext ctx) {
+  String raw = ctx.BYTE_SIZE().getText(); 
+  builder.addToken(new io.cdap.wrangler.api.parser.ByteSize(raw));
+  return builder;
+}
+@Override
+public RecipeSymbol.Builder visitTimeduration(DirectivesParser.TimedurationContext ctx) {
+  String raw = ctx.TIME_DURATION().getText(); 
+  builder.addToken(new io.cdap.wrangler.api.parser.TimeDuration(raw));
+  return builder;
+}
+
+
 }

@@ -1,17 +1,7 @@
 /*
  * Copyright © 2017-2019 Cask Data, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
 grammar Directives;
@@ -24,17 +14,7 @@ options {
 /*
  * Copyright © 2017-2019 Cask Data, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
  */
 }
 
@@ -46,49 +26,47 @@ recipe
  ;
 
 statements
- :  ( Comment | macro | directive ';' | pragma ';' | ifStatement)*
+ : ( Comment | macro | directive ';' | pragma ';' | ifStatement )*
  ;
 
 directive
  : command
-  (   codeblock
-    | identifier
-    | macro
-    | text
-    | number
-    | bool
-    | column
-    | colList
-    | numberList
-    | boolList
-    | stringList
-    | numberRanges
-    | properties
-  )*?
-  ;
+   ( codeblock
+   | identifier
+   | macro
+   | text
+   | number
+   | bool
+   | bytesize       // ✅ newly added
+   | timeduration   // ✅ newly added
+   | column
+   | colList
+   | numberList
+   | boolList
+   | stringList
+   | numberRanges
+   | properties
+   )*?
+ ;
 
 ifStatement
-  : ifStat elseIfStat* elseStat? '}'
-  ;
+ : ifStat elseIfStat* elseStat? '}'
+ ;
 
 ifStat
-  : 'if' expression '{' statements
-  ;
+ : 'if' expression '{' statements
+ ;
 
 elseIfStat
-  : '}' 'else' 'if' expression '{' statements
-  ;
+ : '}' 'else' 'if' expression '{' statements
+ ;
 
 elseStat
-  : '}' 'else' '{' statements
-  ;
+ : '}' 'else' '{' statements
+ ;
 
 expression
-  : '(' (~'(' | expression)* ')'
-  ;
-
-forStatement
- : 'for' '(' Identifier '=' expression ';' expression ';' expression ')' '{'  statements '}'
+ : '(' (~'(' | expression)* ')'
  ;
 
 macro
@@ -132,7 +110,7 @@ property
  ;
 
 numberRanges
- : numberRange ( ',' numberRange)*
+ : numberRange (',' numberRange)*
  ;
 
 numberRange
@@ -140,7 +118,7 @@ numberRange
  ;
 
 value
- : String | Number | Column | Bool
+ : String | Number | Column | Bool | Int | BYTE_SIZE | TIME_DURATION
  ;
 
 ecommand
@@ -151,54 +129,23 @@ config
  : Identifier
  ;
 
-column
- : Column
- ;
-
-text
- : String
- ;
-
-number
- : Number
- ;
-
-bool
- : Bool
- ;
-
-condition
- : OBrace (~CBrace | condition)* CBrace
- ;
-
-command
- : Identifier
- ;
-
-colList
- : Column (','  Column)+
- ;
-
-numberList
- : Number (',' Number)+
- ;
-
-boolList
- : Bool (',' Bool)+
- ;
-
-stringList
- : String (',' String)+
- ;
-
-identifierList
- : Identifier (',' Identifier)*
- ;
+column     : Column ;
+text       : String ;
+number     : Number ;
+bool       : Bool ;
+bytesize   : BYTE_SIZE ;    // ✅ new rule
+timeduration : TIME_DURATION ; // ✅ new rule
+condition  : OBrace (~CBrace | condition)* CBrace ;
+command    : Identifier ;
+colList    : Column (',' Column)+ ;
+numberList : Number (',' Number)+ ;
+boolList   : Bool (',' Bool)+ ;
+stringList : String (',' String)+ ;
+identifierList : Identifier (',' Identifier)* ;
 
 
-/*
- * Following are the Lexer Rules used for tokenizing the recipe.
- */
+/* ========== Lexer Rules ========== */
+
 OBrace   : '{';
 CBrace   : '}';
 SColon   : ';';
@@ -215,42 +162,16 @@ StartsWith : '=^';
 NotStartsWith : '!^';
 EndsWith : '=$';
 NotEndsWith : '!$';
-PlusEqual : '+=';
-SubEqual : '-=';
-MulEqual : '*=';
-DivEqual : '/=';
-PerEqual : '%=';
-AndEqual : '&=';
-OrEqual  : '|=';
-XOREqual : '^=';
-Pow      : '^';
-External : '!';
-GT       : '>';
-LT       : '<';
-Add      : '+';
-Subtract : '-';
-Multiply : '*';
-Divide   : '/';
-Modulus  : '%';
-OBracket : '[';
-CBracket : ']';
-OParen   : '(';
-CParen   : ')';
-Assign   : '=';
-Comma    : ',';
-QMark    : '?';
-Colon    : ':';
-Dot      : '.';
-At       : '@';
-Pipe     : '|';
-BackSlash: '\\';
-Dollar   : '$';
-Tilde    : '~';
-
+PlusEqual : '+='; SubEqual : '-='; MulEqual : '*='; DivEqual : '/='; PerEqual : '%=';
+AndEqual  : '&='; OrEqual  : '|='; XOREqual : '^=';
+Pow       : '^'; External  : '!'; GT        : '>'; LT        : '<';
+Add       : '+'; Subtract  : '-'; Multiply  : '*'; Divide    : '/'; Modulus : '%';
+OBracket  : '['; CBracket  : ']'; OParen    : '('; CParen    : ')';
+Assign    : '='; Comma     : ','; QMark     : '?'; Colon     : ':'; Dot : '.';
+At        : '@'; Pipe      : '|'; BackSlash : '\\'; Dollar    : '$'; Tilde : '~';
 
 Bool
- : 'true'
- | 'false'
+ : 'true' | 'false'
  ;
 
 Number
@@ -270,44 +191,41 @@ Column
  ;
 
 String
- : '\'' ( EscapeSequence | ~('\'') )* '\''
- | '"'  ( EscapeSequence | ~('"') )* '"'
+ : '\'' ( EscapeSequence | ~('\'')) * '\''
+ | '"'  ( EscapeSequence | ~('"'))   * '"'
  ;
 
 EscapeSequence
-   :   '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\')
-   |   UnicodeEscape
-   |   OctalEscape
-   ;
+ : '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\')
+ | UnicodeEscape
+ | OctalEscape
+ ;
 
-fragment
-OctalEscape
-   :   '\\' ('0'..'3') ('0'..'7') ('0'..'7')
-   |   '\\' ('0'..'7') ('0'..'7')
-   |   '\\' ('0'..'7')
-   ;
+fragment OctalEscape
+ : '\\' ('0'..'3') ('0'..'7') ('0'..'7')
+ | '\\' ('0'..'7') ('0'..'7')
+ | '\\' ('0'..'7')
+ ;
 
-fragment
-UnicodeEscape
-   :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
-   ;
+fragment UnicodeEscape
+ : '\\' 'u' HexDigit HexDigit HexDigit HexDigit
+ ;
 
-fragment
-   HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
+fragment HexDigit : [0-9a-fA-F] ;
 
 Comment
  : ('//' ~[\r\n]* | '/*' .*? '*/' | '--' ~[\r\n]* ) -> skip
  ;
 
-Space
- : [ \t\r\n\u000C]+ -> skip
- ;
+Space : [ \t\r\n\u000C]+ -> skip ;
 
-fragment Int
- : '-'? [1-9] Digit* [L]*
- | '0'
- ;
+fragment Int : '-'? [1-9] Digit* [L]* | '0' ;
+fragment Digit : [0-9] ;
 
-fragment Digit
- : [0-9]
- ;
+/* ========== New Units ========== */
+
+fragment BYTE_UNIT : 'B' | 'KB' | 'MB' | 'GB' | 'TB';
+fragment TIME_UNIT : 'ns' | 'us' | 'ms' | 's' | 'm' | 'h';
+
+BYTE_SIZE     : Digit+ ('.' Digit+)? BYTE_UNIT ;
+TIME_DURATION : Digit+ ('.' Digit+)? TIME_UNIT ;
